@@ -1,0 +1,163 @@
+---
+title: "Exam_2"
+author: "Megan Choy"
+date: "6/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r set, include = FALSE}
+# clear working environment
+rm(list=ls(all=TRUE))
+
+#set working directory
+getwd
+setwd("C:/Users/choy9/OneDrive/Desktop/School/Summer20/Data Science/Exam 2")
+
+#load inequality dataset into R and save as 'inequality_data'
+inequality_data <- read.csv("inequality.csv")
+```
+
+### Cross-Sectional vs. Panel
+This data is cross-sectional.  It examines the inequality in several countries all in the same year.
+
+```{r data proof, include=TRUE}
+# checking to see if each country variable is unique
+if (length(unique(inequality_data$country)) == nrow(inequality_data)) {
+  print("There are no repeated countries")
+}
+
+# checking to see if each year variable is "2015"
+if(inequality_data$year == "2015") {
+  print("All data is from 2015")
+}
+```
+The inequality Gini scores for Denmark and Sweden:
+```{r gini, include=TRUE}
+# subsetting the inequality_gini scores for Denmark and Sweden
+inequality_data_gini<- inequality_data$inequality_gini
+inequality_data_sub <- subset(inequality_data_gini, inequality_data$country == "Denmark"|inequality_data$country == "Sweden")
+
+#printing the scores
+inequality_data_sub
+```
+The inequality Gini score for Brazil is:
+```{r gini2, include = TRUE}
+#subsetting Brazil's inequality Gini score
+Brazil_Gini <- subset(inequality_data_gini, inequality_data$country == "Brazil")
+
+#printing score
+Brazil_Gini
+```
+It's much better to have a low inequality Gini score, because it means that there is less economic inequality in the country.
+
+```{r head, include = TRUE}
+# looking at data
+head(inequality_data)
+
+#creating accent.remove function
+accent.remove <- function(x){
+old1 <- "ú"
+new1 <- "u"
+x1 <- chartr(old1, new1, x)
+  }
+inequality_data = accent.remove(inequality_data$country)
+head(inequality_data)
+```
+Data sorted from least inequality to most:
+```{r sort, include=TRUE}
+inequality_data_sorted <- inequality_data[order(inequality_data$inequality_gini),]
+head(inequality_data_sorted)
+```
+The mean inequality Gini score:
+```{r mean, include = TRUE}
+mean(inequality_data$inequality_gini, na.rm = TRUE)
+```
+```{r, include = TRUE}
+
+high_inequality <- ifelse(inequality_data$inequality_gini > 36.81, 1, 0)
+low_inequality <- ifelse(inequality_data$inequality_gini < 36.81, 1,0)
+
+## run a cross tab
+# load doBy
+library(doBy)
+
+summaryBy(high_inequality ~ low_inequality, data = inequality_data, FUN= c((mean, var))
+
+# For loop for 
+contributors <- c("The World Bank", "The African Development Bank", "The Bill and Melinda Gates Foundation")
+i = 1
+for (i in contributors){
+  print(i)
+}
+
+
+#reset wd
+getwd
+setwd("C:/Users/choy9/OneDrive/Desktop/School/Summer20/Data Science/Exam 2")
+
+#importing more data
+library(WDI)
+agricultural_land <- WDI(country = "all",
+                         indicator = c("AG.LND.AGRI.ZS"),
+                         start = 2015, end = 2015, extra = FALSE, cache = NULL)
+
+# renaming variables
+ summary(agricultural_land)
+ library(data.table)
+ 
+ setnames(agricultural_land, "AG.LND.AGRI.ZS", "land area")
+ 
+ #checking change
+ head(agricultural_land)
+ 
+#merging agricultural land and inequality data
+library(tidyverse)
+ 
+ merged_df = full_join(x=agricultural_land,
+                         y =inequality_data,
+                          by =c("country"))
+
+#remove missing variables
+ merged_df_new <- (merged_df$inequality_gini == "NA")
+
+ 
+ #filter data
+ data_greater_30 <- filter(merged_df_new$inequality_gini > 30)
+ 
+ #look for "ai"
+ count(grep("ai",data_greater_30))
+ 
+ #inequality gini sum
+ apply(data_greater_30, sum)
+ 
+ #labelling variables
+ library(labelled)
+ var_label(data_greater_30) <- list(`country` = "Country"
+                                    `year` = "Year")
+ #final_data
+ 
+```
